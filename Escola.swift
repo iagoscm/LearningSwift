@@ -46,21 +46,69 @@ struct Colaborador {
 
 
 class Escola {
+    var colaboradores: [Colaborador] = []
+    var diretorExistente: Bool = false
+    var coordenadoresCount = 0
     
-    var colaboradores: [Colaborador]
+    init(colaboradores: [Colaborador]? = nil){
+        self.colaboradores = colaboradores ?? []
+        contabilizarCargos()
+    }
     
-    init(colaboradores: [Colaborador]){
-        self.colaboradores = colaboradores
+    //Contabiliza os cargos para que possa ter atualizacao de quantos diretores e coordenadores
+    private func contabilizarCargos(){
+        diretorExistente = colaboradores.contains(where: { $0.cargo == .diretor})
+        coordenadoresCount = colaboradores.filter { $0.cargo == .coordenador }.count
+    }
+    
+    //Estabelece a quantidade maxima de coordenadores
+    private func quantidadeMaximaCoordenadores() -> Int {
+        let professoresCount = colaboradores.filter { $0.cargo == .professor }.count
+        return professoresCount
+    }
+    
+    //Retorna o salario do diretor da escola, caso exista
+    private func salarioDiretor() -> Double {
+        if let diretor = colaboradores.first(where: { $0.cargo == .diretor }) {
+            return diretor.salario
+        }
+        return 999999679 //Numero elevado para fazer verificacao. A falta que um define faz
     }
     
     //Cadastra colaboradores
     func cadastraColaborador(_ colaborador: Colaborador){
+        if(colaborador.cargo == .diretor && diretorExistente){
+            print("Já existe um diretor na escola.")
+            return
+        }
+        
+        if(colaborador.cargo == .coordenador && coordenadoresCount >= quantidadeMaximaCoordenadores()){
+            print("Numero máximo de coordenadores já foi atingido.")
+            return
+        }
+        
+        let salarioDiretor = salarioDiretor()
+        
+        if(colaborador.salario >= salarioDiretor && salarioDiretor != 999999679){
+            print("Ta ganhando muito, maior salario tem que ser do diretor.")
+            return
+        }
+        
+       
+        
         colaboradores.append(colaborador)
+        
+        if(colaborador.cargo == .diretor){
+            diretorExistente = true
+        }
+        
+        contabilizarCargos()
     }
     
     //Remove colaboradores por matricula
     func removeColaborador(deMatricula matricula: Int){
         colaboradores.removeAll{ $0.matricula == matricula }
+        contabilizarCargos()
     }
     
     //Lista gastos mensais com todos os colaboradores
@@ -116,18 +164,32 @@ let algunsColaboradores: [Colaborador] =
         Colaborador(nome: "Mariana", matricula: 1007, salario: 2800.00, cargo: .assistente),
         Colaborador(nome: "Roberto", matricula: 1008, salario: 4200.00, cargo: .coordenador),
         Colaborador(nome: "Amanda", matricula: 1009, salario: 5500.00, cargo: .diretor),
-        Colaborador(nome: "Ricardo", matricula: 1010, salario: 2300.00, cargo: .monitor)
+        Colaborador(nome: "Ricardo", matricula: 1010, salario: 2300.00, cargo: .monitor),
+        Colaborador(nome: "Maxwell", matricula: 1015, salario: 4200.00, cargo: .coordenador),
+        Colaborador(nome: "Jonathan", matricula: 1016, salario: 6000.00, cargo: .professor)
+        
     ]
 
-let escola = Escola(colaboradores: algunsColaboradores)
+let escola = Escola()
+
+for colaborador in algunsColaboradores {
+    escola.cadastraColaborador(colaborador)
+}
 
 print(escola.listaColaboradoresOrdemAlfabetica())
 
-let colaborador1 = Colaborador(nome: "Manuel", matricula: 1020, salario: 4000.00, cargo: .professor)
+let colaborador1 = Colaborador(nome: "Manuel", matricula: 1020, salario: 7000.00, cargo: .diretor)
+let colaborador2 = Colaborador(nome: "Jonathan", matricula: 1016, salario: 6000.00, cargo: .professor)
+
+//escola.cadastraColaborador(colaborador1)
+
+escola.removeColaborador(deMatricula: 1004)
 
 escola.cadastraColaborador(colaborador1)
 
 print(escola.listaColaboradoresOrdemAlfabetica())
+
+escola.cadastraColaborador(colaborador2)
 
 escola.removeColaborador(deMatricula: 1020)
 
@@ -138,3 +200,4 @@ print(escola.listaGastosMensais())
 print(escola.listaGasto(doCargo: .professor))
 
 print(escola.listaPessoas(porCargo: .professor))
+
