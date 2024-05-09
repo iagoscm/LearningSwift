@@ -64,13 +64,35 @@ class Escola {
     }
     
     //Lista gastos mensais com todos os colaboradores
-    
+    func listaGastosMensais() -> String {
+        var gasto = 0.0
+        
+        for colaborador in colaboradores {
+            gasto += colaborador.salario
+        }
+        
+        return "Gasto total mensal é igual a \(gasto)"
+    }
     
     //Lista gastos mensais por cargo
-    
+    func listaGasto(doCargo cargo: Cargo) -> String {
+        var gasto = 0.0
+        
+        for colaborador in colaboradores where colaborador.cargo == cargo {
+            gasto += colaborador.salario
+        }
+        
+        return "Os gastos do cargo \(cargo.nomeCargo()) são, mensalmente, de R$\(gasto)"
+    }
     
     //Lista quantas pessoas existem por cargo
+    func listaPessoas(porCargo cargo: Cargo) -> String {
+        var qtdPorCargo = 0
+        
+        qtdPorCargo = colaboradores.filter{ $0.cargo == cargo }.count
     
+        return "Existe(m) \(qtdPorCargo) colaborador(es) do cargo \(cargo.nomeCargo())"
+    }
     
     //Lista os nomes de todos os colaboradores em ordem alfabética
     func listaColaboradoresOrdemAlfabetica() -> [String]{
@@ -111,6 +133,8 @@ escola.removeColaborador(deMatricula: 1020)
 
 print(escola.listaColaboradoresOrdemAlfabetica())
 
-escola.removeColaborador(deMatricula: 1010)
+print(escola.listaGastosMensais())
 
-print(escola.listaColaboradoresOrdemAlfabetica())
+print(escola.listaGasto(doCargo: .professor))
+
+print(escola.listaPessoas(porCargo: .professor))
